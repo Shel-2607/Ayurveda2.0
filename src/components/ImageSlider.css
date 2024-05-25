@@ -1,0 +1,23 @@
+.slider-image {
+  display: block;
+  margin: auto;
+  width: 100%;
+  max-width: 690px;
+  border-radius: 90px;
+  transition: transform 0.6s ease-in-out;
+  padding: 50px;
+}
+
+.slick-dots li button:before {
+  color: #fff; /* Dot color */
+}
+
+.slick-prev,
+.slick-next {
+  z-index: 1;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  color: #fff;
+}

@@ -1,0 +1,133 @@
+.home {
+  width: 100%;
+  text-align: center;
+  padding-top: 50px; /* Adjust this value to create space for the header */
+}
+
+.heading {
+  margin: 40px 0; /* Add some margin for spacing */
+  color: black;
+  font-size: 2rem; /* Adjust font size as needed */
+}
+
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: 90vh; /* Increase height as needed */
+  overflow: hidden;
+}
+.slider-pagination {
+  position: absolute;
+  bottom: 10px; /* Adjust the distance from the bottom */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Center horizontally */
+  z-index: 1000; /* Ensure the dots appear above other content */
+}
+.slider-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure the image covers the container while maintaining aspect ratio */
+}
+
+.content {
+  padding: 20px;
+}
+
+.options {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.options button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.options button:hover {
+  background-color: #0056b3;
+}
+
+.start-app-button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.start-app-button:hover {
+  background-color: #0056b3;
+}
+.options button.register-doctor {
+  margin: 10px;
+  padding: 15px 40px; /* Increase padding to make the button larger */
+  font-size: 1.2rem; /* Increase font size */
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 25px; /* Make the button round */
+  cursor: pointer;
+  transition: transform 0.9s ease, box-shadow 0.9s ease;
+}
+
+.options button.register-doctor:hover {
+  background-color: #0056b3;
+  transform: translateY(-6px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.options button.register-patient {
+  margin: 10px;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  background-color: #ffffff; /* Different color for patient button */
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 25px; /* Keep the patient button rectangular */
+  cursor: pointer;
+  transition: transform 0.9s ease, box-shadow 0.9s ease;
+}
+
+.options button.register-patient:hover {
+  background-color: #0056b3; /* Darker color on hover */
+  transform: translateY(-6px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.options button {
+  opacity: 0; /* Initially hide the buttons */
+  transform: translateY(20px); /* Move the buttons down */
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.options button.visible {
+  opacity: 1; /* Show the buttons */
+  transform: translateY(0); /* Move the buttons up */
+}
+.form-container {
+  margin-top: 20px; /* Add spacing between the buttons and the form */
+  padding: 20px;
+  border: 1px solid #ccc; /* Add border */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  ); /* Add background color with opacity */
+  max-width: 600px; /* Limit the maximum width of the form container */
+  margin-left: auto; /* Center the form container horizontally */
+  margin-right: auto;
+}
+.form-group {
+  margin-bottom: 10px; /* Add spacing between form fields */
+}
