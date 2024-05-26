@@ -403,16 +403,17 @@ input[type="radio"] {
   border: 2px solid black;
 }
 
-.symptom-table th,
 .symptom-table td {
-  border: 1px solid black;
+  border: 2px solid black;
   padding: 8px;
   color: black;
+  background-color: white;
 }
 
 .symptom-table th {
-  background-color: #f2f2f2;
+  background-color: black;
   text-align: left;
+  color: white;
 }
 .symptom-box .tooltip {
   visibility: hidden;
@@ -443,4 +444,43 @@ input[type="radio"] {
 .symptom-box:hover .tooltip {
   visibility: visible;
   opacity: 1;
+}
+.disease-header {
+  background-color: lightblue; /* Set background color to light blue */
+  color: black; /* Set text color to black */
+}
+
+.severity-header {
+  background-color: lightblue; /* Set background color to light blue */
+  color: black; /* Set text color to black */
+}
+.disease-name {
+  background-color: lightblue; /* Set background color to green */
+  color: white; /* Set text color to white for better contrast */
+}
+.chart-container {
+  width: 90%; /* Full width */
+  height: 500px; /* Set height as per your requirement */
+  margin: 20px auto;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Hide overflow if chart size exceeds container */
+}
+
+.chart-container canvas {
+  width: 100% !important; /* Make canvas fill the entire width of the container */
+  height: 100% !important; /* Make canvas fill the entire height of the container */
+}
+.question-container {
+  margin-top: 200px;
+}
+
+.question-container p {
+  margin-bottom: 100px;
+}
+
+.question-container button {
+  margin-right: 10px;
 }

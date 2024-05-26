@@ -12,7 +12,7 @@ const Header = () => {
           <li><Link to="/goals">Our Goals</Link></li>
           <li><Link to="/need">Vision</Link></li>
           <li><Link to="/about">About Us</Link></li>
-          <li><Link to="/guide">Login</Link></li>
+          <li><Link to="/login">Login</Link></li>
         </ul>
       </nav>
       <input type="text" placeholder="Search..." className="search-bar" />

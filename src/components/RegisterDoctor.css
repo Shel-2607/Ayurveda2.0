@@ -1,0 +1,14 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Ensure the container takes up the full viewport height */
+}
+
+.signin-container {
+  width: 300px; /* Adjust the width of the login form as needed */
+}
+.hname {
+  color: black;
+}

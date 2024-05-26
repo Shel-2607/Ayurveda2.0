@@ -1,13 +1,13 @@
-// Guide.js
-import React from 'react';
+import { SignIn } from '@clerk/clerk-react';
 
-const Guide = () => {
+const Login = () => {
   return (
     <div>
-      <h2>Guide</h2>
-      <p>Some dummy content about the guide.</p>
+      <h2>Login</h2>
+      <h1>he</h1>
+      <SignIn path="/login" routing="path" />
     </div>
   );
 };
 
-export default Guide;
+export default Login;

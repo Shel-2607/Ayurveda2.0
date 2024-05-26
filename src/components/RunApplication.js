@@ -1,6 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import './RunApplication.css';
-
+// Register the necessary components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 const RunApplication = () => {
   const [step, setStep] = useState(1);
   const [showForm, setShowForm] = useState(false);
@@ -61,24 +79,42 @@ const [sexActivityFrequency, setSexActivityFrequency] = useState('');
 const [fatigue, setFatigue] = useState('');
 const [diseaseName, setDiseaseName] = useState('');
 const [selectedSymptoms, setSelectedSymptoms] = useState({});
+const [diagnose, setDiagnose] = useState(false); // State to track if user wants to diagnose
+//const [diagnosisResult, setDiagnosisResult] = useState(''); // State to store diagnosis result
+const getHighestPercentageDisease = (data) => {
+  let maxPercentage = 0;
+  let highestPercentageDisease = '';
 
+  data.forEach((percentage, index) => {
+    if (percentage > maxPercentage) {
+      maxPercentage = percentage;
+      highestPercentageDisease = chartData.labels[index];
+    }
+  });
 
+  return highestPercentageDisease;
+};
+// Assuming `getSymptomPercentage` and other functions are defined elsewhere
+
+const [showChart, setShowChart] = useState(false);
+const [showTextArea, setShowTextArea] = useState(false);
+const [userDiagnosis, setUserDiagnosis] = useState('');
 const specificSymptomData = [
   {
     disease: 'अरूचि ',
     severities: {
-      Mild: [
+      वातज: [
         { symptom: 'दन्त हर्ष', description: '(Hypers sensitivity of teeth) ' },
         { symptom: 'मुख का कषाय रस युक्त होना ', description: 'Bitter taste of mouth' }
        
       ],
-      Moderate: [
+      पित्तज: [
         { symptom: 'मुख का स्वाद कद', description: 'अम्ल तथा उष्ण होना (Bitter taste of mouth' },
         { symptom: 'मुख में विरसता होना', description: 'Tastelessness of mouth' },
         { symptom: 'अम्ल तथा उष्ण होना ', description: 'acidic taste of mouth' }
        
       ],
-      Serious: [
+      कफज: [
         { symptom: ' मुखमाधुर्य ', description: 'Sweet taste of mouth' },
         { symptom: 'पिच्छिलता या कफस्त्राव ', description: 'Salivation' },
         { symptom: 'गौरव एवं शैत्यता', description: 'Heaviness and feeling of cold' },
@@ -89,7 +125,7 @@ const specificSymptomData = [
   {
     disease: 'अग्निमांद्य लक्षण',
     severities: {
-      Mild: [
+      वातज: [
         { symptom: ' उदर शूल', description: 'Pain in abdomen ' },
         { symptom: 'तोद  ', description: 'Pricking pain in the abdomen' },
         { symptom: 'दौर्बल्य ', description: 'Weakness' },
@@ -98,13 +134,13 @@ const specificSymptomData = [
         { symptom: 'मुखशोष', description: 'Dryness of mouth' }
        
       ],
-      Moderate: [
+      पित्तज: [
         { symptom: 'अरूचि ', description: 'Anorexia' },
         { symptom: 'तृष्णा तथा दाह ', description: 'Polydypsia and burning sensation' },
         { symptom: 'अत्यधिक स्वेद  ', description: 'Excessive perspiration' },
         { symptom: 'अम्लोद्‌गार   ', description: 'Acidic eructations' }
       ],
-      Serious: [
+      कफज: [
         { symptom: 'उत्क्लेश ', description: 'Nausea' },
         { symptom: 'छर्दि ', description: 'Vomiting' },
         { symptom: 'कपोल तथा नेत्र कूट में शोथ', description: 'Swelling over eyes and face' },
@@ -119,7 +155,7 @@ const specificSymptomData = [
   {
     disease: 'अजीर्ण लक्षण',
     severities: {
-      Mild: [
+      वातज: [
         { symptom: ' नेत्र तथा कपोल शोथ', description: 'Swelling over eyes and face' },
         { symptom: 'सद्योभुक्त आहार के समानगन्ध रस युक्त उद्गार' },
         { symptom: 'प्रसेक ', description: 'Salivation' },
@@ -128,7 +164,7 @@ const specificSymptomData = [
         
        
       ],
-      Moderate: [
+      पित्तज: [
         { symptom: ' भ्रम', description: 'Vertigo' },
         { symptom: 'मूर्च्छा ', description: 'Fainting' },
         { symptom: 'तृष्णा तथा दाह', description: 'Polydypsia and Burning senjation' },
@@ -136,7 +172,7 @@ const specificSymptomData = [
         { symptom: 'हृदय प्रदेश में दाह', description: 'Burning sensation in the chest region' },
         { symptom: 'स्वेदाधिक्य', description: '(Excessive sweating' }
       ],
-      Serious: [
+      कफज: [
         { symptom: 'शूल' , description: 'Pain' },
         { symptom: 'विबन्ध', description: 'Constipation' },
         { symptom: 'आध्मान', description: 'Flatulance' },
@@ -148,160 +184,267 @@ const specificSymptomData = [
     },
   },
   {
-    disease: 'आध्मान लक्षण',
+    disease: 'आनाह लक्षण',
     severities: {
-      Moderate: [
-        { symptom: 'प्राणवाहिनी आक्रमण', description: 'Invading the respiratory passages' },
-        { symptom: 'अम्लवात की उत्कृष्टता', description: 'Pre-eminence of acid and wind' },
-        { symptom: 'चाहे जो आहार सुखा हो तथा कठिन वस्तु अच्छी लगती हो', description: 'Even though food may be dry and hard' }
+      वातज: [
+        { symptom: ' कटि तथा पृष्ठ की स्तब्धता ', description: 'Stiffness in back' },
+        { symptom: 'मूत्र तथा पुरीषावरोध', description: 'Obstruction of urine and faece' },
+        { symptom: 'शूल', description: 'Pain' },
+        { symptom: 'मूर्च्छा', description: 'Fainting' },
+        { symptom: 'श्वास में पुरीष की गन्ध आना' },
+        { symptom: 'अलसक' }
+
       ],
-      Serious: [
-        { symptom: 'प्रस्तावना के आधिक्य', description: 'Excessive salivation' },
-        { symptom: 'अत्यधिक पेटदाह', description: 'Excessive burning sensation in the stomach' },
-        { symptom: 'हृदय प्रदेश में दाह', description: 'Burning sensation in the chest region' }
+      पित्तज: [
+        { symptom: 'आमाशय में शूल', description: 'Pain in abdomen' },
+        { symptom: 'उद्गार विघात', description: 'No Belching' },
+        { symptom: 'तृष्णा ', description: 'Polydypsia' },
+        { symptom: 'शिरोदाह', description: 'Burning in Head' }
+
+      ],
+      कफज: [
+        { symptom: ' गौरव', description: 'Heaviness' },
+        { symptom: 'प्रतिश्याय', description: 'Running nose' },
+        { symptom: 'हृद स्तम्भ', description: 'Stiffness in ches' }
+        
       ]
     },
+  },
+  {
+    disease: 'आध्मान लक्षण	',
+    severities: {
+      वातज: [
+        { symptom: 'पक्वाशय में वात संचय होना ', description: 'प्रत्याध्मान-वात तथा कफ की वृद्धि के कारण उदर के ऊर्ध्व भाग में वायु का संचय होने के कारण आटोप तथा उदर का फूलना।' },
+       
+      ],
+      
+    },
+  },
+  {
+
     disease: 'आटोप लक्षण',
     severities: {
-      Mild: [
-        { symptom: 'पित्त और कफ', description: 'Bile and phlegm' },
-        { symptom: 'मध्यम शक्ति का भोजन और उपयोग', description: 'Moderate food and usage' },
-        { symptom: 'प्रस्तावना', description: 'Salivation' }
+      वातज: [
+        { symptom: 'उदर का फूलना', description: 'Distension of abdomen' },
+        { symptom: ' गुड़गुड़ाहट', description: '(Gargling sound in abdomen' },
+        
       ],
-      Moderate: [
-        { symptom: 'किंवदंति दुर्बलता', description: 'Weakness of the teeth and gums' },
-        { symptom: 'वायुपुरी की प्रवृत्ति', description: 'Tendency towards flatulence' },
-        { symptom: 'गलगन्ध में बदलाव', description: 'Change in the odor of sweat' }
-      ],
-      Serious: [
-        { symptom: 'तीव्रता तथा समयानुसार उपाय', description: 'Severity and timely treatment' },
-        { symptom: 'चाहे जो आहार सुखा हो तथा कठिन वस्तु अच्छी लगती हो', description: 'Even though food may be dry and hard' },
-        { symptom: 'उच्च', description: 'Fever' }
+      कफज: [
+        { symptom: ' हृललास', description: 'Nausea' },
+        
       ]
     },
   },
   {
     disease: 'ग्रहणी लक्षण',
     severities: {
-      Moderate: [
-        { symptom: 'शोथ', description: 'Swelling' },
-        { symptom: 'रुधिरापचय का निषेध', description: 'Prohibition of blood digestion' },
-        { symptom: 'श्लेष्मपित्त', description: 'Phlegm and bile' }
+      वातज: [
+        { symptom: 'ग्रहण किये गये अन्न का कष्टपूर्वक पाक होना ', description: 'Difficulty in digestion' },
+        { symptom: 'अन्न का अम्लपाक ', description: 'Increased acidic secreations' },
+        { symptom: 'खराङ्गता', description: 'Dryness in the body parts' },
+        { symptom: 'मुख तथा कण्ठ मे शोष', description: 'Dryness of mouth and throat' },
+        { symptom: 'क्षुधा एवं तृष्णा की अधिकता ', description: 'Polyphagia and polydypsia' },
+        { symptom: 'तिमिर ', description: 'Black outs' },
+        { symptom: 'कर्णनाद', description: 'Tinnitus' },
+        { symptom: 'विसूचिका', description: 'Dysentery' },
+        { symptom: ',मुखवैरस्य ', description: 'Bitter tase of mouth' },
+        { symptom: 'हृदपीड़ा', description: 'Chest pain' },
+        { symptom: 'कार्श्य एवं दौर्बल्य ', description: 'Weight loss and weakness' },
+        { symptom: 'गुदा में कर्तनवत् पीड़ा', description: 'Cutting pain in Anus' },
+        { symptom: 'सर्वरस भक्षण की इच्छा होना', description: 'Desire to eat various types of food' },
+        { symptom: 'भोजन के पच जाने पर तथा पाचन काल में आध्मान होना ', description: 'Flatulance, Tympanitis' },
+        { symptom: 'थोड़ा भोजन करने पर स्वास्थ्य की प्रतीति होना', description: '(Healthy feeling after consuming little food' },
+        { symptom: 'वातगुल्म, हृदरोग तथा प्लीहारोग की शंका उत्पन्न होना', description: 'Possibilities of accurence of abdomenal lumps, cardiac disorders or diseases of speen' }
       ],
-      Serious: [
-        { symptom: 'अग्निदाह की वृद्धि', description: 'Increase in acid burning' },
-        { symptom: 'मलाशय और पित्त की प्रवृत्ति', description: 'Tendency towards intestines and bile' },
-        { symptom: 'शुष्कांत में उत्कृष्टता', description: 'Pre-eminence of dryness at the end' }
+      पित्तज: [
+        { symptom: ' रोगी का पीताभ वर्ण होना', description: 'Yellowish discolouration of patient' },
+        { symptom: 'अजीर्ण ', description: 'Indigestion' },
+        { symptom: 'नील पीताभ वर्ण के मल का निस्सरण', description: 'Expulsion of Bluish-yellow- ish stool' },
+        { symptom: 'पूययुक्त अम्लोद्‌गार', description: 'Acid eructations with foul smell' },
+        { symptom: 'हृदय तथा कण्ठ में दाह', description: 'Burning sensation in chest and thorat' },
+        { symptom: 'अरूचि तथा तृष्णा', description: 'Anorexia and Polydypsia' }
+        
+      ],
+      कफज: [
+        { symptom: 'खाये हुए आहार का कठिनता से पाचन', description: 'Difficulty in digestion of food consumed' },
+        { symptom: 'हल्लास तथा छर्दि', description: 'Nausea and vomiting' },
+        { symptom: 'अरूचि', description: 'Anorexia' },
+        { symptom: 'मुख के भीतर मललिप्तता', description: 'Coating inside the mouth' },
+        { symptom: 'कास, ष्ठीवन तथा पीनस', description: 'Cough, sputum expectoration and Rhinitis' },
+        { symptom: 'मुखमाधुर्य', description: 'Sweet taste of mouth' },
+        { symptom: 'उदर गौरव ', description: 'Heaviness in the abdomen' },
+        { symptom: 'सदन', description: 'Loosene of body, Letharginess' },
+        { symptom: 'मैथुन में अनिच्छा', description: 'Loss of Libido' },
+        { symptom: 'पतला, आम, गुरु तथा कफयुक्त मल का निस्सरण', description: 'Passage of Loose,mucoid, undigested, heavy stools)' },
+        { symptom: 'पीड़ित व्यक्ति कृश नहीं होता परन्तु दुर्बलता रहती है', description: 'No cachexia, but patient is weak' }
+     
+
+
       ]
     },
+  },
+  {
+    
     disease: 'छर्दि लक्षण',
     severities: {
-      Moderate: [
-        { symptom: 'किमिद्वयं', description: 'Burning sensation' },
-        { symptom: 'अम्लपित्त', description: 'Acidic bile' },
-        { symptom: 'अत्यन्तं तामसं', description: 'Excessive lethargy' }
+      वातज: [
+        { symptom: 'हृदय तथा पार्श्व में वेदना', description: 'Pain in chest and costal region' },
+        { symptom: 'मस्तक, नाभि में पीड़ा के साथ कास, स्वरभेद तथा शरीर में सुई चुभोने सी पीड़ा', description: 'Bouts of cough, hoarseness of voice with pain in head, umbilical region and needling sensation in body' },
+        { symptom: 'वेगयुक्त डकार सशब्द निकलना', description: 'Forceful, noisy belching' },
+        { symptom: 'वमन फेनयुक्त, विच्छिन्न, काला, पतला तथा कसैला होना', description: 'Thin, frothy and blackish vomitus' },
+        { symptom: 'अत्यधिक वेग के साथ वमन आना', description: 'Forceful vomiting' }
       ],
-      Serious: [
-        { symptom: 'मलविपाकात्मक उद्गार', description: 'Faecal regurgitation' },
-        { symptom: 'तामसं तथा तैलिक', description: 'Lethargy and oily' },
-        { symptom: 'संपर्कात्मक व्याधि', description: 'Infectious diseases' }
+      पित्तज: [
+        { symptom: 'मूर्च्छा', description: 'Fainting' },
+        { symptom: 'पिपासा तथा मुख शोष', description: 'Polydypsia and dryness of mouth' },
+        { symptom: 'शिर, तालु तथा नेत्रों में जलन', description: 'Burning sensation in head, throat and eyes' },
+        { symptom: 'तमः प्रवेश (आँखों के सामने अन्धकार होना)', description: 'Black outs' },
+        { symptom: 'भ्रम', description: 'Vertigo' },
+        { symptom: 'वमन पीत-हरित वर्ण वाला, उष्ण तथा तिक्तरसयुक्त होना', description: 'Yellowish, greenish, hot, bitter taste of vomitus' },
+        { symptom: 'धूम्र तथा जलनयुक्त वमन होना', description: 'Smoky and burning vomitus' }
+      ],
+      कफज: [
+        { symptom: 'तन्द्रा', description: 'Drowsiness' },
+        { symptom: 'मुख का मधुर स्वाद होना', description: 'Sweet taste of mouth' },
+        { symptom: 'भोजन के संतोष या तृप्ति', description: 'Feeling of fullness' },
+        { symptom: 'कफ प्रसेक', description: 'Excessive salivation' },
+        { symptom: 'अतिनिद्रा', description: 'Excessive sleepiness' },
+        { symptom: 'वमन स्निग्ध, धन तथा मधुर रसयुक्त होना', description: 'Sticky, solid and sweet vomitus' }
       ]
     },
   },
   {
     disease: 'गुल्म लक्षण',
     severities: {
-      Mild: [
-        { symptom: 'प्रवाह', description: 'Flowing' },
-        { symptom: 'आमगन्ध उद्गार', description: 'Common odor belching' },
-        { symptom: 'सदाम्लपित्त', description: 'Always acidic bile' }
+      वातज: [
+        { symptom: 'स्थान विकल्प युक्त गुल्म अर्थात् चल गुल्म', description: 'Mobile Lump' },
+        { symptom: 'विषम आकृति युक्त गुल्म', description: 'Disfigure Lump' },
+        { symptom: 'सदा एक समान रूजा का न होना अर्थात् कभी अत्यधिक रूजा तथा कभी अत्यल्प रूजा होना', description: 'Variations in the intensity of pain' },
+        { symptom: 'मल तथा अपानवायु का अवरोध', description: 'Obstruction in the passage of faeces and flatus' },
+        { symptom: 'मुख तथा गले में शोष', description: 'Dryness of mouth and throat' },
+        { symptom: 'शीत लगकर ज्वर की प्रवृत्ति', description: 'Fever with chills' }
       ],
-      Moderate: [
-        { symptom: 'महादाह', description: 'Great burning sensation' },
-        { symptom: 'क्लान्ति', description: 'Fatigue' },
-        { symptom: 'अन्योन्य गर्भाशय', description: 'Mutual uterus' }
+      पित्तज: [
+        { symptom: 'ज्वर', description: 'Fever' },
+        { symptom: 'भोजन की पाकावस्था में तीव्र शूल का होना', description: 'Increased pain during digestive phage of food' },
+        { symptom: 'तृष्णा तथा स्वेदाधिक्य', description: 'Polydypsia and excessive perspiration' },
+        { symptom: 'मुख तथा शरीर का रक्तवर्ण युक्त होना', description: 'Reddish texture of face and body' },
+        { symptom: 'उदर में दाहाधिक्य', description: 'Burning sensation in abdomen' },
+        { symptom: 'व्रण के समान गुल्म का स्पर्शासह्य होना', description: 'Tenderness over lump' }
       ],
-      Serious: [
-        { symptom: 'अत्यन्तं शूल', description: 'Excessive pain' },
-        { symptom: 'अत्यधिक मल', description: 'Excessive excretion' },
-        { symptom: 'उत्तेजन', description: 'Agitation' }
+      कफज: [
+        { symptom: 'शीत ज्वर', description: 'Fever with chills' },
+        { symptom: 'स्तैमित्य', description: 'Feeling of being covered with wet cloth' },
+        { symptom: 'शरीर में शिथिलता', description: 'Looseness of the body' },
+        { symptom: 'हल्लास', description: 'Nausea' },
+        { symptom: 'कास', description: 'Cough' },
+        { symptom: 'अरूचि तथा गौरव', description: 'Anorexia and Heaviness in body' },
+        { symptom: 'शरीर का शीतल होना', description: 'Feeling of cold' },
+        { symptom: 'गुल्म प्रदेश में अल्प वेदना', description: 'Mild pain in the region of lump' },
+        { symptom: 'गुल्म उत्सेधयुक्त तथा कठिन होना', description: 'Prominent and hard lump' }
       ]
     },
   },
   {
     disease: 'अन्नद्रवशूल लक्षण',
     severities: {
-      Moderate: [
-        { symptom: 'क्रियाशक्तिविकृतिः', description: 'Activity distortion' },
-        { symptom: 'मलोद्गार', description: 'Eructations' },
-        { symptom: 'चारकं शूलम्', description: 'Four-sided pain' }
-      ],
-      Serious: [
-        { symptom: 'ग्राही', description: 'Absorptive' },
-        { symptom: 'वायुविकारः', description: 'Wind disorder' },
-        { symptom: 'प्रवाहिनी क्रिया', description: 'Flowing activity' }
+      वातज: [
+        { symptom: 'भोजन के जीर्ण होने पर, जीर्णावस्था में एवं जीर्ण होने से पूर्व किसी भी समय शूल होना', description: 'Pain in abdomen after digestion, during digestion or before meals or any time' },
+        { symptom: 'पथ्य तथा अपथ्य सेवन से नियमपूर्वक शान्त न होना', description: 'Not relieved by specific dietetic regimen' },
+        { symptom: 'भोजन करने अथवा न करने से भी शूल की शान्ति न होना', description: 'Pain not relieved by taking or avoiding food' },
+        { symptom: 'कभी-कभी वमन के द्वारा दूषित पित्त के निष्कासन से शूल का शमन', description: 'Sometimes relief in pain by vomiting' }
       ]
-    },
+    }
   },
   {
     disease: 'परिणाम शूल लक्षण',
     severities: {
-      Mild: [
-        { symptom: 'प्रवाह', description: 'Flowing' },
-        { symptom: 'मल', description: 'Excretion' },
-        { symptom: 'अवसादम्', description: 'Depression' }
+      वातज: [
+        { symptom: 'उदर का फूलना', description: 'Tympanitis' },
+        { symptom: 'आटोप', description: 'Flatulence' },
+        { symptom: 'मल तथा मूत्र का अवरोध होना', description: 'Cessation of the urge to defaecate or micturate' },
+        { symptom: 'अरति तथा कम्पन', description: 'Restlessness and tremors' }
       ],
-      Moderate: [
-        { symptom: 'शूल', description: 'Pain' },
-        { symptom: 'अतिदाह', description: 'Excessive burning' },
-        { symptom: 'अत्यधिकम् मल', description: 'Excessive excretion' }
+      पित्तज: [
+        { symptom: 'तृष्णा', description: 'Polydypsia' },
+        { symptom: 'दाह', description: 'Burning sensation' },
+        { symptom: 'बेचैनी', description: 'Restlessness' },
+        { symptom: 'अत्यधिक स्वेद की प्रवृत्ति', description: 'Excessive sweating' },
+        { symptom: 'कटु, अम्ल तथा लवण रस युक्त पदार्थों के सेवन से शूल में वृद्धि होना', description: 'Pain increases after consuming spicy food' },
+        { symptom: 'शीतोपचार से शान्ति', description: 'Relief in pain after consuming cold food stuff' }
       ],
-      Serious: [
-        { symptom: 'स्वास्थ्य लक्षण', description: 'Health symptoms' },
-        { symptom: 'क्लान्ति', description: 'Fatigue' },
-        { symptom: 'आम्लोद्गार', description: 'Acidic eructations' }
+      कफज: [
+        { symptom: 'वमन', description: 'Vomiting' },
+        { symptom: 'हल्लास', description: 'Nausea' },
+        { symptom: 'मोह', description: 'Fainting/Confusion' },
+        { symptom: 'चिरकाल तक थोड़ी-थोड़ी पीड़ा का बने रहना', description: 'Prolonged mild pain in the abdomen' },
+        { symptom: 'कटु तथा तिक्त रस युक्त पदार्थों के सेवन से शूल की शान्ति', description: 'Relief in pain by consuming bitter food stuff' }
       ]
     },
   },
   {
     disease: 'अम्लफ्ति लक्षण',
     severities: {
-      Moderate: [
-        { symptom: 'विकृति व्यापारः', description: 'Distortion activity' },
-        { symptom: 'मल', description: 'Excretion' },
-        { symptom: 'प्रदाहः', description: 'Burning' }
+      वातज: [
+        { symptom: 'भ्रम तथा मोह', description: 'Vertigo, confusion and delusion' }
       ],
-      Serious: [
-        { symptom: 'अत्यधिकम्', description: 'Excessive' },
-        { symptom: 'अजीर्ण उपचयः', description: 'Indigestion' },
-        { symptom: 'मलोद्गार', description: 'Eructations' }
+      पित्तज: [
+        { symptom: 'तृष्णा', description: 'Polydypsia' },
+        { symptom: 'दाह तथा मूर्च्छा', description: 'Burning sensation and fainting' },
+        { symptom: 'विविध वर्ण युक्त पित्त का अधोमार्ग से स्राव होना', description: 'Discharge of different coloured bilious substance from the rectum' },
+        { symptom: 'अग्निसाद', description: 'Indigestion' },
+        { symptom: 'हर्ष तथा स्वेद की प्रवृत्ति', description: 'Horripitation and sweating' },
+        { symptom: 'पीताङ्गता', description: 'Yellowish discolouration of the body' }
+      ],
+      कफज: [
+        { symptom: 'हरित-पीत-नील-कृष्ण-रक्त तथा अम्लयुक्त वमन की प्रवृत्ति', description: 'Greenish, yellowish, bluish, blackish and acidic vomitus containing blood' },
+        { symptom: 'अति पिच्छिल, विविध रस युक्त तथा मांस के धोवन के समान वमन होना', description: 'Excessive sticky containing different rasas and resembling water in which meat is being washed, vomitus' },
+        { symptom: 'भोजन के पश्चात् या बिना भोजन ग्रहण किये ही वमन होना', description: 'Vomitus after or without consuming meals' },
+        { symptom: 'अम्लोद्गार तथा कण्ठ प्रदेश में दाह', description: 'Acidic eructations and burning sensation in throat' },
+        { symptom: 'हस्तपाद में दाह तथा उष्णता का होना', description: 'Burning sensation in hands and feet' },
+        { symptom: 'हृदय प्रदेश में दाह तथा शिरः शूल', description: 'Burning sensation in heart and headache' }
       ]
     },
   },
   {
     disease: 'उदर रोग लक्षण',
     severities: {
-      Mild: [
-        { symptom: 'प्राणिनाम्', description: 'Creatures' },
-        { symptom: 'प्रवाहिनी आक्रमण', description: 'Invading the respiratory passages' },
-        { symptom: 'प्रत्युत्क्रामः', description: 'Counterattack' }
+      वातज: [
+        { symptom: 'कुक्षि प्रदेश, पाणि पाद तथा अण्डो में गाथ', description: 'Pain in abdomen, palms, feet and testis' },
+        { symptom: 'उदर में विपाटन (चरिने) सी पीड़ा', description: 'Cutting pain in abdomen' },
+        { symptom: 'उदर तथा पाश्र्वशूल', description: 'Pain in abdomen and loin' },
+        { symptom: 'अंगमर्द तथा पर्वभेद', description: 'Bodyache and pain in joints' },
+        { symptom: 'शुष्क कास', description: 'Dry cough' },
+        { symptom: 'कृश्ता', description: 'Emaciation' },
+        { symptom: 'अरोचक तथा अविपाक', description: 'Anorexia and indigestion' },
+        { symptom: 'अषः प्रदेश में भारीपन', description: 'Heaviness in lower abdomen' },
+        { symptom: 'मल-मूत्र तथा अपानवायु की स्कावट', description: 'Obstruction of urine and flatus' },
+        { symptom: 'नख-नेत्र, त्वचा, मुख, मूत्र, पुरीष, काले होना', description: 'Blackish nails, eyes, skin, mouth, urine and faeces' }
       ],
-      Moderate: [
-        { symptom: 'मूत्रम्', description: 'Urine' },
-        { symptom: 'चारकम्', description: 'Four-sided' },
-        { symptom: 'मांसः', description: 'Flesh' }
+      पित्तज: [
+        { symptom: 'शारीरिक दाह तथा ज्वर', description: 'Burning sensation and fever' },
+        { symptom: 'तृष्णा', description: 'Polydypsia' },
+        { symptom: 'मूर्च्छा', description: 'Fainting' },
+        { symptom: 'अतिसार', description: 'Diarrhoea' },
+        { symptom: 'भ्रम', description: 'Vertigo' },
+        { symptom: 'कटुकास्यता', description: 'Bitter taste of mouth' },
+        { symptom: 'नख, नेत्र, मुख, त्वचा, मूत्र तथा पूरीष का वर्ण पीत-हरा होना', description: 'Yellowish green coloured nails, eyes, mouth, skin, urine and faeces' },
+        { symptom: 'हरित तथा ताम्र वर्ण की रेखाओं उदर प्रदेश में नील पीत हारिद्र की उत्पनि', description: 'Green and copper coloured lines in the abdomen' },
+        { symptom: 'उदर में दाह, संताप तथा उष्मा वृद्धि', description: 'Burning sensation and raised body temperature' },
+        { symptom: 'उदर का स्पर्श में कोमल तथा शीघ्रपाकी होना', description: 'Soft touch of abdomen and tendency for inflammation' }
       ],
-      Serious: [
-        { symptom: 'भूषणम्', description: 'Ornament' },
-        { symptom: 'गुर्वम्', description: 'Heavy' },
-        { symptom: 'क्षुत्पिपासः', description: 'Hunger and thirst' }
+      कफज: [
+        { symptom: 'शरीर में गुरुता', description: 'Heaviness of body' },
+        { symptom: 'अरोचक तथा अविपाक', description: 'Anorexia and indigestion' },
+        { symptom: 'अंगमर्द तथा शून्यता', description: 'Bodyache and numbness' },
+        { symptom: 'उदर स्पर्श में शीत, भारी, स्थिर तथा श्वेत सिराओं से व्याप्त', description: 'Cold, heavy, steady abdomen with white veins' },
+        { symptom: 'हस्त, पाद, अण्डकोष व उरु में शोथ', description: 'Oedema over hand, feet, thighs and testis' },
+        { symptom: 'कास तथा श्वास', description: 'Cough and dyspnea' },
+        { symptom: 'उत्क्लेश', description: 'Nausea' },
+        { symptom: 'निद्राधिक्य', description: 'Excessive sleepiness' },
+        { symptom: 'उदर स्तिमित तथा नेत्र, मुख, त्वचा व पुरीष में श्वेतता', description: 'Feeling of being covered with wet cloth and whitish eyes, mouth, skin and faeces' }
       ]
-    }
-  
-
-
-
-
+    },
 
   },
   // Add more diseases here
@@ -338,7 +481,82 @@ const specificSymptomData = [
   const isSymptomSelected = (disease, severity, symptom) => {
     return selectedSymptoms[disease]?.[severity]?.includes(symptom);
   };
+  const getSymptomPercentage = (disease) => {
+    const severities = specificSymptomData.find(d => d.disease === disease)?.severities;
+    if (!severities) return 0;
 
+    let totalCount = 0;
+    let selectedCount = 0;
+
+    ['वातज', 'पित्तज', 'कफज'].forEach(severity => {
+      const symptoms = severities[severity] || [];
+      totalCount += symptoms.length;
+      selectedCount += symptoms.filter(({ symptom }) => isSymptomSelected(disease, severity, symptom)).length;
+    });
+
+    return totalCount === 0 ? 0 : Math.round((selectedCount / totalCount) * 100);
+  };
+  const diseasePercentages = specificSymptomData.map(({ disease }) => ({
+    disease,
+    percentage: getSymptomPercentage(disease),
+  }));
+  
+  const chartData = {
+    labels: diseasePercentages.map(dp => dp.disease),
+    datasets: [{
+      label: 'Selected Symptoms Percentage',
+      data: diseasePercentages.map(dp => dp.percentage),
+      backgroundColor: [
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)',
+      ],
+      borderColor: [
+        'rgba(75, 192, 192, 1)',
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)',
+      ],
+      borderWidth: 1,
+    }],
+  };
+  
+  const chartOptions = {
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: 'rgb(255, 99, 132)',
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        titleFont: { size: 16 },
+        bodyFont: { size: 14 },
+        footerFont: { size: 12 },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: 'rgba(75, 192, 192, 1)',
+        },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: 'rgba(75, 192, 192, 1)',
+        },
+      },
+    },
+  };
 
   const nextStep = () => {
     setShowForm(false);
@@ -534,7 +752,7 @@ const specificSymptomData = [
     'Tongue', 'Sound', 'Touch', 'Eye', 'Akriti'
   ];
   const boxes2 = [
-    'Most Suffered Symptom', 'Duration', 'Diet and Eating Habbit','Most Specific Symptoms', 'Food Quality', 'LifeStyle', 'Stress and Environmental Health'
+    'Most Suffered Symptom', 'Duration', 'Diet and Eating Habbit','Most Specific Symptoms', 'Food Quality', 'LifeStyle', 'Stress and Environmental Health','Investigation'
   ];
  
   const calculatePercentages = () => {
@@ -566,43 +784,43 @@ const specificSymptomData = [
             {/* Form fields here */}
             <div className="form-group">
               <label>Name:</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label>Age/Sex:</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label>Blood Group:</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label>Height (C.M):</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label>Weight:</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label>Education:</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label>Occupation:</label>
-              <input type="text" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label htmlFor="father-name">Father's Name:</label>
-              <input type="text" id="father-name" name="father-name" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label htmlFor="mother-name">Mother's Name:</label>
-              <input type="text" id="mother-name" name="mother-name" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label htmlFor="marital-status">Marital Status:</label>
-              <input type="text" id="marital-status" name="marital-status" />
+              <textarea id="medicinal-history" name="medicinal-history" />
             </div>
             <div className="form-group">
               <label htmlFor="environmental-history">Environmental History:</label>
@@ -1659,39 +1877,62 @@ const specificSymptomData = [
                     </div>
                   </div>
                 )}
+                {selectedBox === 'Investigation' && selectedBox === box && (
+                  <div className="chart-container">
+                   <Bar data={chartData} options={chartOptions} />
+                   <p>Would you like to diagnose?</p>
+                    <button onClick={() => setShowTextArea(true)}>Yes</button>
+                    <button onClick={() => setShowTextArea(false)}>No</button>
+                  
+                  {showTextArea ? (
+                    <textarea
+                      placeholder="Write your diagnosis here..."
+                      value={userDiagnosis}
+                      onChange={(e) => setUserDiagnosis(e.target.value)}
+                    />
+                  ) : (
+                    <p>{getHighestPercentageDisease(chartData.datasets[0].data)}</p>
+                  )}
+                    </div>
+                )}
                 {selectedBox === 'Most Specific Symptoms' && selectedBox === box && (
                   <div className="symptom-table">
                   <table>
                   <thead>
-                  <tr>
-                    <th>Disease</th>
-                    <th>Mild</th>
-                    <th>Moderate</th>
-                    <th>Serious</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {specificSymptomData.map(({ disease, severities }) => (
-                    <tr key={disease}>
-                      <td>{disease}</td>
-                      {['Mild', 'Moderate', 'Serious'].map(severity => (
-                        <td key={severity}>
-                          {severities[severity]?.map(({ symptom, description }) => (
-                            <div
-                              key={symptom}
-                              className={`symptom-box ${isSymptomSelected(disease, severity, symptom) ? 'selected' : ''}`}
-                              onClick={() => handleSymptomClick(disease, severity, symptom)}
-                            >
-                              {symptom}
-                              <div className="tooltip">{description}</div>
-                            </div>
-                          ))}
-                        </td>
-                      ))}
+                    <tr>
+                      <th className="disease-header">Disease</th>
+                      <th className="severity-header">वातज</th>
+                      <th className="severity-header">पित्तज</th>
+                      <th className="severity-header">कफज</th>
+                      <th className="percentage-header">Percentage</th>
                     </tr>
-                  ))}
-                </tbody>
-                </table> 
+                  </thead>
+                  <tbody>
+                    {specificSymptomData.map(({ disease, severities }) => {
+                      const percentage = getSymptomPercentage(disease);
+                      return (
+                        <tr key={disease}>
+                          <td className="disease-name">{disease}</td>
+                          {['वातज', 'पित्तज', 'कफज'].map(severity => (
+                            <td key={severity}>
+                              {severities[severity]?.map(({ symptom, description }) => (
+                                <div
+                                  key={symptom}
+                                  className={`symptom-box ${isSymptomSelected(disease, severity, symptom) ? 'selected' : ''}`}
+                                  onClick={() => handleSymptomClick(disease, severity, symptom)}
+                                >
+                                  {symptom}
+                                  <div className="tooltip">{description}</div>
+                                </div>
+                              ))}
+                            </td>
+                          ))}
+                          <td className="percentage-cell">{percentage}%</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
                   </div>
                 )}
                 

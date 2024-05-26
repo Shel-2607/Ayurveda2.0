@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import './Home.css';
 import ImageSlider from './ImageSlider';
+import RegisterDoctor from './RegisterDoctor';
+import { withRouter } from 'react-router-dom';
+
 
 const Home = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -35,7 +38,21 @@ const Home = () => {
   const handleRunApplicationClick = () => {
     navigate('/run-application'); // Navigate to the new page
   };
-  
+  const [isRegisterDoctorVisible, setIsRegisterDoctorVisible] = useState(false);
+
+  const toggleRegisterDoctorVisibility = () => {
+    setIsRegisterDoctorVisible(!isRegisterDoctorVisible);
+  };
+
+
+  const handleButtonClick2 = () => {
+    navigate('/register-doctor');
+  };
+  const handleButtonClick3 = () => {
+    navigate('/register-patient');
+  };
+
+
 
   return (
     <div className="home">
@@ -45,8 +62,9 @@ const Home = () => {
       </div>
       <div className={`content ${isVisible ? 'visible' : ''}`}>
         <div className="options">
-        <button className={`register-doctor ${isVisible ? 'visible' : ''}`} onClick={toggleDoctorForm}>Register as Doctor</button>
-        <button className={`register-patient ${isVisible ? 'visible' : ''}`} onClick={togglePatientForm}>Register as Patient</button>
+        <button className={`register-doctor ${isVisible ? 'visible' : ''}`} onClick={handleButtonClick2}>Register as Doctor</button>
+       
+        <button className={`register-patient ${isVisible ? 'visible' : ''}`} onClick={handleButtonClick3}>Register as Patient</button>
         </div>
         
     
