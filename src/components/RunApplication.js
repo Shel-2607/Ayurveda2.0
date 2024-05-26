@@ -79,26 +79,153 @@ const [sexActivityFrequency, setSexActivityFrequency] = useState('');
 const [fatigue, setFatigue] = useState('');
 const [diseaseName, setDiseaseName] = useState('');
 const [selectedSymptoms, setSelectedSymptoms] = useState({});
-const [diagnose, setDiagnose] = useState(false); // State to track if user wants to diagnose
+const [showDiagnoseQuestion, setShowDiagnoseQuestion] = useState(false);
+const [showDiagnosis, setShowDiagnosis] = useState(false);
+const [diagnosisResult, setDiagnosisResult] = useState('');
+const [customDiagnosis, setCustomDiagnosis] = useState('');
 //const [diagnosisResult, setDiagnosisResult] = useState(''); // State to store diagnosis result
-const getHighestPercentageDisease = (data) => {
-  let maxPercentage = 0;
-  let highestPercentageDisease = '';
 
-  data.forEach((percentage, index) => {
-    if (percentage > maxPercentage) {
-      maxPercentage = percentage;
-      highestPercentageDisease = chartData.labels[index];
-    }
-  });
-
-  return highestPercentageDisease;
-};
 // Assuming `getSymptomPercentage` and other functions are defined elsewhere
 
-const [showChart, setShowChart] = useState(false);
-const [showTextArea, setShowTextArea] = useState(false);
-const [userDiagnosis, setUserDiagnosis] = useState('');
+const anorexiaContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - त्रिदोष, प्रमुखतः मानसिक दोष तथा कफ प्रकोप</p>
+    <p><strong>दूष्य</strong> - अन्न तथा रस धातु</p>
+    <p><strong>रोतस</strong> - अन्नवह तथा मनोवह</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय, हृदय तथा जिह्वा</p>
+    <p><strong>रोतोदुष्टि</strong> - संग</p>
+    <p><strong>अग्नि</strong> - मन्दाग्नि</p>
+  </div>
+);
+const digestiveInsufficiencyContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - त्रिदोष, मुख्यतः कफ प्रधान</p>
+    <p><strong>स्रोतस</strong> - अन्नवह स्रोतस</p>
+    <p><strong>स्रोतोदुष्टि</strong> - संग</p>
+    <p><strong>स्वभाव</strong> - चिरकारी</p>
+    <p><strong>दृष्य</strong> - अग्नि तथा रसधातु</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय तथा ग्रहणी</p>
+    <p><strong>अग्नि</strong> - मन्दता</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+  </div>
+);
+const indigestionContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - कफ प्रधान त्रिदोष</p>
+    <p><strong>स्रोतस</strong> - अन्नवह स्रोतस</p>
+    <p><strong>स्त्रोतोदुष्टि</strong> - संग</p>
+    <p><strong>साध्यासाध्यता</strong> - कृच्छ्रसाध्य</p>
+    <p><strong>दूष्य</strong> - कायाग्नि तथा रस धातु</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय, पक्वाशय</p>
+    <p><strong>स्वभाव</strong> - दारुण</p>
+    <p><strong>अग्नि</strong> - अग्निमांद्य</p>
+  </div>
+);
+const constipationContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - अपानवायु</p>
+    <p><strong>स्रोतस</strong> - अन्नवह, पुरीषवह</p>
+    <p><strong>स्रोतोदुष्टि</strong> - विमार्गगमन, संग</p>
+    <p><strong>स्वभाव</strong> - आशुकारी</p>
+    <p><strong>दूष्य</strong> - अपक्व अन्न, रस, पुरीष</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय, पक्वाशय</p>
+    <p><strong>अग्नि</strong> - मन्दता</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+  </div>
+);
+const abdominalSwellingsContent = (
+  <div className="abdominal-swellings-content">
+    <p><strong>दोष</strong> - त्रिदोष</p>
+    <p><strong>दृष्य</strong> - रस, अम्बु</p>
+    <p><strong>स्रोतस</strong> - रसवह, रक्तवह, स्वेदवह, अश्रवह, उदकवह, पुरीषवह</p>
+    <p><strong>अधिष्ठान</strong> - उदर प्रदेश</p>
+    <p><strong>स्रोतोदुष्टि</strong> - संग</p>
+    <p><strong>अग्नि</strong> - मांद्य</p>
+    <p><strong>स्वभाव</strong> - दारूण</p>
+    <p><strong>साध्यासाध्यता</strong> - कृच्छ्रसाध्</p>
+  </div>
+);
+const tympanitisContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - वात</p>
+    <p><strong>स्रोतस</strong> - अन्नवह स्रोतस</p>
+    <p><strong>स्रोतोदुष्टि</strong> - संग</p>
+    <p><strong>स्वभाव</strong> - आशुकारी</p>
+    <p><strong>दूष्य</strong> - अपक्व अन्न, रस</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय</p>
+    <p><strong>अग्नि</strong> - मन्दता</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+  </div>
+);
+const flatulenceContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - वात</p>
+    <p><strong>स्रोतस</strong> - अत्रवह</p>
+    <p><strong>स्रोतोदुष्टि</strong> - विमार्गगमन</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+    <p><strong>अधिष्ठान</strong> - उदर</p>
+    <p><strong>स्वभाव</strong> - मृदु</p>
+  </div>
+);
+const malabsorptionContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - त्रिदोष</p>
+    <p><strong>स्रोतस</strong> - अन्नवह, पुरीषवह</p>
+    <p><strong>स्रोतोदुष्टि प्रकार</strong> - अतिप्रवृत्ति</p>
+    <p><strong>अग्नि</strong> - मन्दता</p>
+    <p><strong>दूष्य</strong> - अत्र, रस</p>
+    <p><strong>अधिष्ठान</strong> - पित्तधरा कला, ग्रहणी</p>
+    <p><strong>स्वभाव</strong> - दारूण</p>
+    <p><strong>साध्यासाध्यता</strong> - कृच्छ्रसाध्य</p>
+  </div>
+);
+const vomitingContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - वात तथा कफ</p>
+    <p><strong>दूष्य</strong> - आहार रस</p>
+    <p><strong>स्रोतस</strong> - अन्नवह स्त्रोतस</p>
+    <p><strong>स्रोतोदुष्टि</strong> - संग तथा विमार्गगमन</p>
+    <p><strong>अग्नि</strong> - अग्निमांद्य</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय</p>
+    <p><strong>स्वभाव</strong> - आशुकारी</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+  </div>
+);
+const painfulLumpContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - वात, पित्त, कफ मुख्यतः वात</p>
+    <p><strong>दृष्य</strong> - निराश्रय</p>
+    <p><strong>स्रोतस</strong> - अन्नवह, महास्रोतस</p>
+    <p><strong>अधिष्ठान</strong> - पार्श्व, हृदय, नाभि, वस्ति</p>
+    <p><strong>स्रोतोदुष्टि</strong> - संग तथा विमार्गगमन</p>
+    <p><strong>स्वभाव</strong> - चिरकारी</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+  </div>
+);
+const hyperacidityContent = (
+  <div className="anorexia-content">
+    <p><strong>दोष</strong> - पित्त दोष</p>
+    <p><strong>स्रोतस</strong> - अन्नवह स्रोतस</p>
+    <p><strong>स्रोतोदुष्टि</strong> - विमार्गगमन</p>
+    <p><strong>स्वभाव</strong> - आशुकारी</p>
+    <p><strong>दूष्य</strong> - रस तथा रक्त धातु</p>
+    <p><strong>अधिष्ठान</strong> - आमाशय</p>
+    <p><strong>अग्नि</strong> - मन्द</p>
+    <p><strong>साध्यासाध्यता</strong> - साध्य</p>
+  </div>
+);
+const gastrointestinalColicContent = (
+  <div className="gastrointestinal-colic-content">
+    <p><strong>दोष</strong>—त्रिदोष (समान वायु, पाचक पित्त तथा क्लेदक कफ)</p>
+    <p><strong>दृष्य</strong>-अन्नरस</p>
+    <p><strong>स्रोतस</strong>-अन्नवह</p>
+    <p><strong>अधिष्ठान</strong>–आमाशय एवं ग्रहणी</p>
+    <p><strong>स्रोतोदुष्टि</strong>-संग</p>
+    <p><strong>स्वभाव</strong>-आशुकारी</p>
+    <p><strong>अग्नि</strong>- मन्द</p>
+    <p><strong>साध्यासाध्यता</strong>-साध्य</p>
+  </div>
+);
 const specificSymptomData = [
   {
     disease: 'अरूचि ',
@@ -557,7 +684,19 @@ const specificSymptomData = [
       },
     },
   };
-
+  const handleDiagnoseResponse = (response) => {
+    if (response === 'Yes') {
+      const highestPercentageDisease = diseasePercentages.reduce((prev, current) => prev.percentage > current.percentage ? prev : current);
+      setDiagnosisResult(highestPercentageDisease.disease);
+      setShowDiagnoseQuestion(true);
+      setShowDiagnosis(false);
+    } else {
+      setShowDiagnoseQuestion(false);
+      setShowDiagnosis(true);
+      setCustomDiagnosis('');
+    }
+  };
+  
   const nextStep = () => {
     setShowForm(false);
     setTimeout(() => {
@@ -1878,22 +2017,160 @@ const specificSymptomData = [
                   </div>
                 )}
                 {selectedBox === 'Investigation' && selectedBox === box && (
+                  <div>
                   <div className="chart-container">
-                   <Bar data={chartData} options={chartOptions} />
-                   <p>Would you like to diagnose?</p>
-                    <button onClick={() => setShowTextArea(true)}>Yes</button>
-                    <button onClick={() => setShowTextArea(false)}>No</button>
+                  <Bar data={chartData} options={chartOptions} />
+                  </div>
                   
-                  {showTextArea ? (
-                    <textarea
-                      placeholder="Write your diagnosis here..."
-                      value={userDiagnosis}
-                      onChange={(e) => setUserDiagnosis(e.target.value)}
-                    />
-                  ) : (
-                    <p>{getHighestPercentageDisease(chartData.datasets[0].data)}</p>
-                  )}
+                  <div>
+                  <p style={{ color: 'black' , fontWeight: 'bold'}}>Would you like to go with diagnosis?</p>
+                  <button onClick={() => handleDiagnoseResponse('Yes')}>Yes</button>
+                  <button onClick={() => handleDiagnoseResponse('No')}>No</button>
+                  
                     </div>
+                
+                    {showDiagnoseQuestion && (
+                      <div>
+                        <h2 className="dname">The disease with the highest percentage is: {diagnosisResult}</h2>
+                        {diagnosisResult === 'अरूचि ' ? (
+                          <div className="anorexia-background">
+                            {anorexiaContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'अग्निमांद्य लक्षण' ? (
+                          <div className="anorexia-background">
+                            {digestiveInsufficiencyContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'अजीर्ण लक्षण' ? (
+                          <div className="anorexia-background">
+                            {indigestionContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'आनाह लक्षण' ? (
+                          <div className="anorexia-background">
+                            {constipationContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'आध्मान लक्षण	' ? (
+                          <div className="anorexia-background">
+                            {tympanitisContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'आटोप लक्षण' ? (
+                          <div className="anorexia-background">
+                            {flatulenceContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'ग्रहणी लक्षण' ? (
+                          <div className="anorexia-background">
+                            {malabsorptionContent}
+                            <p className="hehe">Investigations<br/>
+                            1. Stool microscopy<br/>
+                            2. Rectal Biopsy<br/>
+                            3. Sigmoidoscopy<br/>
+                            4. Blood culture<br/>
+                            5. Barium enema <br/>
+                            6. Colonoscopy</p>
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'छर्दि लक्षण' ? (
+                          <div className="anorexia-background">
+                            {vomitingContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'गुल्म लक्षण' ? (
+                          <div className="anorexia-background">
+                            {painfulLumpContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'अम्लफ्ति लक्षण' ? (
+                          <div className="anorexia-background">
+                            {hyperacidityContent}
+                            <p className="hehe">Ambulatory oesophageal pH monitoring is very important investigation for the diagnosis of reflux.<br/>
+                            Otherless specific tests are-<br/>
+                            1. Bárium oesophagography<br/>
+                            2. Scintigraphy<br/>
+                            3. Standard acid reflux test</p>
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'अन्नद्रवशूल लक्षण'||diagnosisResult === 'परिणाम शूल लक्षण' ? (
+                          <div className="anorexia-background">
+                            {gastrointestinalColicContent}
+                            <p className="hehe">
+                            Investigations<br/>
+                            1. Radiographs of barium-filled stomach and duodenum.<br/>
+                            2. Upper gastro-intestinal endoscopy.<br/>
+                            </p>
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'उदर रोग लक्षण' ? (
+                          <div className="anorexia-background">
+                            {abdominalSwellingsContent}
+                            <p className="hehe">
+                            Investigations<br/>
+                              1. Complete Haematology<br/>
+                              2. Abdominal X-rays<br/>
+                              3. Ultrasonography<br/>
+                              4. Laparoscopy<br/>
+                              5. Ascitic fluid examination<br/>
+                              6. Peritoneal Biopsy<br/>
+                            </p>
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'ग्रहणी लक्षण' ? (
+                          <div className="anorexia-background">
+                            {malabsorptionContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                        {diagnosisResult === 'ग्रहणी लक्षण' ? (
+                          <div className="anorexia-background">
+                            {malabsorptionContent}
+                          </div>
+                        ) : (
+                          <h2></h2>
+                        )}
+                      </div>
+                    )}
+                    {showDiagnosis && (
+                      <div>
+                        <textarea
+                          placeholder="Write your diagnosis here..."
+                          value={customDiagnosis}
+                          onChange={(e) => setCustomDiagnosis(e.target.value)}
+                          rows="4" cols="50"
+                        ></textarea>
+                      </div>
+                    )}
+                  
+                  </div>
+                   
                 )}
                 {selectedBox === 'Most Specific Symptoms' && selectedBox === box && (
                   <div className="symptom-table">

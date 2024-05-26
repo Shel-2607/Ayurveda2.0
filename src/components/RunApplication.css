@@ -484,3 +484,27 @@ input[type="radio"] {
 .question-container button {
   margin-right: 10px;
 }
+.anorexia-background {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.anorexia-content p {
+  margin: 10px 0;
+  font-size: 1.4em;
+  color: white;
+}
+
+.anorexia-content strong {
+  font-size: 1.4em;
+  color: orange;
+  margin-right: 20px;
+}
+.dname {
+  color: black;
+}
+.hehe {
+  font-size: 1.5em;
+  color: yellow;
+}
